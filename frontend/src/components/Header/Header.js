@@ -1,7 +1,15 @@
 import React from 'react'
 import {Container,Button, Form, FormControl, Nav, Navbar, NavDropdown} from 'react-bootstrap'
-import {Link} from 'react-router-dom'
-const header = () => {
+import {Link, useNavigate} from 'react-router-dom'
+const Header = () => {
+  let name = 'user';
+  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+  if(userInfo){
+    name = userInfo.name;
+  }
+
+  const history = useNavigate();
+
   return (
       <Navbar bg="primary" expand="lg" variant="dark">
   <Container>
@@ -11,22 +19,31 @@ const header = () => {
         </Link></Navbar.Brand>
     <Navbar.Toggle aria-controls="basic-navbar-nav" />
     <Navbar.Collapse id="basic-navbar-nav">
-      <Nav className="me-auto">
+      {userInfo ? <Nav className="me-auto">
         <Nav.Link >
-            <Link to="/events">
-            Events
+            <Link to="/home">
+            Home
             </Link>
             </Nav.Link>
-        <NavDropdown title="User" id="basic-nav-dropdown">
-          <NavDropdown.Item href="#action/3.1">My Profile</NavDropdown.Item>
+        <NavDropdown title={name} id="basic-nav-dropdown">
+            
+          <NavDropdown.Item href="/profile">My Profile</NavDropdown.Item>
           <NavDropdown.Divider />
-          <NavDropdown.Item href="#action/3.4">Logout</NavDropdown.Item>
+          <NavDropdown.Item onClick = {()=>{
+            localStorage.removeItem("userInfo");
+            localStorage.setItem("isAuthenticated", "false");
+            history("/login");
+          }}>Logout</NavDropdown.Item>
         </NavDropdown>
-      </Nav>
+      </Nav>: <Nav><Nav.Link >
+            <Link to="/login">
+            Login
+            </Link>
+            </Nav.Link></Nav>}
     </Navbar.Collapse>
   </Container>
 </Navbar>
   )
 }
 
-export default header
+export default Header

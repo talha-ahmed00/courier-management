@@ -18,23 +18,46 @@ const registerUser = async (req, res) => {
 try{
 
 const savedUser = await newUser.save();
-const token = jwt.sign({
-  id: newUser._id
-}, "talha",{expiresIn:"1d"})
-res.status(201).json({savedUser, token});
+
+res.status(201).json({savedUser});
 }
 catch(err){
 res.status(500).json(err)
 } 
 };
 
+const updateUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.body.id);
 
+  if (user) {
+    user.name = req.body.name || user.name;
+    user.email = req.body.email || user.email;
+    user.pic = req.body.pic || user.pic;
+    if (req.body.password) {
+      user.password = req.body.password;
+    }
+
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      pic: updatedUser.pic,
+      isAdmin: updatedUser.isAdmin,
+      token: jwt.sign({
+        id: updatedUser._id
+      }, "talha",{expiresIn:"1d"}),
+    });
+  } else {
+    res.status(404).json("User Not Found");
+  }
+});
 
 
 const authUser = async (req, res) => {
   try{    
     const user = await User.findOne({username: req.body.username});
-    !user && res.status(401).json("Wrong Credentials");
     //await user.matchPassword(req.body.password) && !res.status(401).json("Wrong Credentials");
     if(await user.matchPassword(req.body.password)){
     const{password, ...others}=user._doc;
@@ -45,12 +68,13 @@ const authUser = async (req, res) => {
     //const token = generateToken(user._id);
     res.status(200).json({...others, token});
     } else{
-      res.status(401).json("Wrong Credentials");
+      res.status(200).json("Wrong Credentials");
+      
     }
 
 }
 catch(err){
-    res.status(500).json(err);
+    res.status(200).json("Wrong Credentials");
 }
 }
 
@@ -58,4 +82,4 @@ catch(err){
 
 
 
-  module.exports = { registerUser,authUser };
+  module.exports = { registerUser,authUser, updateUserProfile };

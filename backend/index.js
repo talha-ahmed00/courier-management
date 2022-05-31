@@ -4,6 +4,7 @@ const mongoose = require('mongoose')
 const events = require("./data/events.js");
 const userRoutes = require("./routes/userRoutes.js");
 const eventRoutes = require("./routes/eventRoutes.js");
+const orderRoutes = require("./routes/orderRoutes.js");
 
 const { contentType } = require('express/lib/response');
 const { notFound, errorHandler } = require('./middlewares/errormiddlewares.js');
@@ -37,6 +38,8 @@ app.get('/api/events',(req,res)=>{
 
 app.use('/api/users', userRoutes);
 app.use('/api/event', eventRoutes);
+app.use('/api/orders', orderRoutes);
+
 
 app.use(notFound)
 app.use(errorHandler)

@@ -7,14 +7,29 @@ import Loading from "../../components/Loading";
 import "./LoginScreen.css";
 import axios from "axios";
 import ErrorMessage from '../../components/ErrorMessage';
+import {useNavigate} from 'react-router-dom'
 const LoginScreen = () => {
+
+  const history = useNavigate();
+
+
     
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  
+  const userInfo = localStorage.getItem('userInfo')
+  useEffect(() => {
+    if (userInfo) {
+      history('/home');
+    }
+  }, [userInfo]);
+
   const submitHandler = async (e) => {
+    setError(false)
     e.preventDefault();
 
     try{
@@ -27,10 +42,22 @@ const LoginScreen = () => {
       setLoading(true)
       const {data} = await axios.post('/api/users/login', {username,password},config)
       console.log(data)
-      localStorage.setItem("userInfo",JSON.stringify(data));
+      if (data == "Wrong Credentials"){
+        setError(data)
+        setLoading(false)
+      }
+      else{
+      localStorage.setItem("isAuthenticated", "true");
+
+      localStorage.setItem('userInfo',JSON.stringify(data));
+      if(data.isAdmin == true)
+      {history('/admin')
+      }
+      }
       setLoading(false)
     } catch(error){
         setError(error.response.data.message)
+        setLoading(false)
     }
       
   };
